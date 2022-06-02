@@ -21,9 +21,9 @@
 
 	<div class="lang">
 		<div class="first" v-show="status.isRu">
-			<input type="text" placeholder="ru" v-model="library[index].ru" />
-			<input type="text" placeholder="ru_result" v-model="library[index].ru_result" />
-			<h1 v-show="currentTime < 5">{{ library[index].en }}</h1>
+			<input type="text" placeholder="ru" v-model="word.ru" />
+			<input type="text" placeholder="ru_result" v-model="word.ru_result" />
+			<h1 v-show="currentTime < 5">{{ word.en }}</h1>
 		</div>
 
 		<div class="second" v-show="status.isEn">
@@ -31,7 +31,7 @@
 			<input type="text" placeholder="en_result" v-model="library[index].en_result" />
 			<h1 v-show="currentTime < 5">{{ library[index].ru }}</h1>
 		</div>
-		<p>{{ diction[50] }}</p>
+		<p>{{ word }}</p>
 
 		<div class="text" v-show="status.isText">
 			<input type="text" x-webkit-speech v-model="response" />
@@ -92,16 +92,16 @@ defineProps({
 	msg: String,
 });
 
-const diction = reactive(localStorage.dictionary || dictionary);
+const diction = reactive(JSON.parse(localStorage.dictionary) || dictionary);
 const books = ref("top500");
 const arrWords = reactive(diction.filter((item) => item.name === books.value)[0].data);
 const status = reactive({ isRu: true, isEn: false, isText: true, sel: "output", btn: "START", lang: "ru" });
 const biblioteca = reactive(localStorage.biblioteca || dictionary[0]);
 
-const inCount = ref(20);
+const inCount = ref(6);
 const deCount = ref(0);
 const index = ref(0);
-const currentTime = ref(20);
+const currentTime = ref(6);
 const timer = ref(0);
 
 const ruLang = ref("имя");
@@ -133,8 +133,11 @@ const library = computed(() => {
 
 //console.log(localStorage.dictionary || dictionary);
 //console.log(vue_sort(diction, "en"));
+
+//________________________W A T C H_____________________________
 watch(diction, (newValue, oldValue) => {
 	vue_sort(diction, status.lang);
+	localStorage.setItem("dictionary", JSON.stringify(diction));
 	console.log(diction[diction.length - 1]);
 });
 watch(status, (newValue, oldValue) => {
@@ -173,11 +176,13 @@ watch(status, (newValue, oldValue) => {
 watch(
 	() => currentTime.value,
 	(newValue) => {
-		if (newValue < 1) {
+		if (newValue === 0) {
+			library.value[index.value][`${status.lang}+_result`]--;
+		} else if (newValue < 0) {
 			//stopTimer();
 			console.log(books.value);
 			console.log(diction.filter((item) => item.name === books.value)[0].data);
-			index.value = random(diction.filter((elem) => elem.name === books.value)[0].data);
+			index.value = random(library);
 
 			currentTime.value = inCount.value;
 		}
@@ -212,6 +217,8 @@ watch(
 // 		diction = localStorage.biblioteca[newValue];
 // 	}
 // );
+//________________________E N D___W A T C H_____________________________
+
 const btnRename = (e) => {
 	console.log(e);
 	if (status.btn === "START") {

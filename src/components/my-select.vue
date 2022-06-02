@@ -31,6 +31,11 @@ watch(
 		emit("sub", my_value.value);
 	}
 );
+// methods: {
+//         onChange(event) {
+//             console.log(event.target.value)
+//         }
+//     };
 </script>
 
 <style lang="scss" scoped></style>
