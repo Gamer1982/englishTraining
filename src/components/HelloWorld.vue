@@ -1,37 +1,25 @@
 <template>
-	<MySelect @sub="submit2" :my_define="'biblioteca >>>'" :my_options="diction.map((elem) => elem.name)"></MySelect>
+	<MySelect v-model="words" :my_options="diction.map((elem) => elem.name)" :my_define="'biblioteca >>>'"></MySelect>
 
-	<MySelect @sub="submit1" :my_define="'lang >>>'" :my_options="['ru', 'en']"></MySelect>
+	<MySelect v-model="status.lang" :my_options="['ru', 'en']"></MySelect>
 
-	<!-- <div>
-		<select name="language" v-model="status.lang" class="select-lang" id="sel">
-			<option value="ru">ru</option>
-			<option value="en">en</option>
-		</select>
-	</div> -->
+	<MySelect v-model="status.sel" :my_options="['output', 'input', 'rename', 'delete']"></MySelect>
 
-	<MySelect @sub="submit" :my_options="['output', 'input', 'rename', 'delete']"></MySelect>
-
-	<!-- <select name="language" class="select-lang" v-model="status.sel" id="sel">
-		<option value="output">output</option>
-		<option value="input">input</option>
-		<option value="rename">rename</option>
-		<option value="delete">delete</option>
-	</select> -->
+	<p>{{ diction.map((elem) => elem.name) }}</p>
 
 	<div class="lang">
 		<div class="first" v-show="status.isRu">
 			<input type="text" placeholder="ru" v-model="word.ru" />
 			<input type="text" placeholder="ru_result" v-model="word.ru_result" />
-			<h1 v-show="currentTime < 5">{{ word.en }}</h1>
+			<h1 v-show="currentTime < 10">{{ word.en }}</h1>
 		</div>
 
 		<div class="second" v-show="status.isEn">
-			<input type="text" placeholder="en" v-model="library[index].en" />
-			<input type="text" placeholder="en_result" v-model="library[index].en_result" />
-			<h1 v-show="currentTime < 5">{{ library[index].ru }}</h1>
+			<input type="text" placeholder="en" v-model="word.en" />
+			<input type="text" placeholder="en_result" v-model="word.en_result" />
+			<h1 v-show="currentTime < 10">{{ word.ru }}</h1>
 		</div>
-		<p>{{ word }}</p>
+		<!-- <p>{{ library[index] }}</p> -->
 
 		<div class="text" v-show="status.isText">
 			<input type="text" x-webkit-speech v-model="response" />
@@ -70,12 +58,6 @@
 	>
 		-
 	</button>
-	<!-- <p>{{ library[index] }}</p> -->
-	<!-- <MyTimer :currentTime="currentTime.value"></MyTimer> -->
-	<!-- 
-	<p>{{ diction[index].name }}</p>
-
-	<input type="button" value="IMPORT" /> -->
 </template>
 
 <script setup>
@@ -92,16 +74,17 @@ defineProps({
 	msg: String,
 });
 
-const diction = reactive(JSON.parse(localStorage.dictionary) || dictionary);
-const books = ref("top500");
-const arrWords = reactive(diction.filter((item) => item.name === books.value)[0].data);
+let diction = ref(dictionary);
+if (window.localStorage.getItem("dictionary") !== null) {
+	diction.value = JSON.parse(window.localStorage.getItem("dictionary"));
+}
+const words = ref("top500");
 const status = reactive({ isRu: true, isEn: false, isText: true, sel: "output", btn: "START", lang: "ru" });
-const biblioteca = reactive(localStorage.biblioteca || dictionary[0]);
 
-const inCount = ref(6);
+const inCount = ref(25);
 const deCount = ref(0);
 const index = ref(0);
-const currentTime = ref(6);
+const currentTime = ref(25);
 const timer = ref(0);
 
 const ruLang = ref("имя");
@@ -115,18 +98,21 @@ const startTimer = () => {
 	}, 1000);
 };
 const stopTimer = () => {
-	clearTimeout(timer.value);
+	clearInterval(timer.value);
+	console.log("stopTimer");
 	isBtn.value = true;
 };
+console.log(diction);
 
 //______________________computed_______________________________
 
 const word = computed(() => {
-	return vue_sort(diction[0].data, status.lang)[index.value];
+	return vue_sort(library.value, status.lang)[index.value];
 });
 
 const library = computed(() => {
-	return diction.filter((item) => item.name === books.value)[0].data;
+	//console.log("computed-library");
+	return diction.value.filter((item) => item.name === words.value)[0].data;
 });
 
 //_____________________endComputed_____________________________
@@ -134,14 +120,14 @@ const library = computed(() => {
 //console.log(localStorage.dictionary || dictionary);
 //console.log(vue_sort(diction, "en"));
 
-//________________________W A T C H_____________________________
+//________________________W A T C H____________________________
 watch(diction, (newValue, oldValue) => {
-	vue_sort(diction, status.lang);
+	vue_sort(diction.value, status.lang);
 	localStorage.setItem("dictionary", JSON.stringify(diction));
-	console.log(diction[diction.length - 1]);
+	console.log(diction[diction.value.length - 1]);
 });
 watch(status, (newValue, oldValue) => {
-	vue_sort(diction, status.lang);
+	vue_sort(diction.value, status.lang);
 	switch (status.sel) {
 		case "output":
 			status.isRu = status.lang === "ru";
@@ -177,13 +163,13 @@ watch(
 	() => currentTime.value,
 	(newValue) => {
 		if (newValue === 0) {
-			library.value[index.value][`${status.lang}+_result`]--;
+			console.log("error");
+			library[`${status.lang}+_result`]--;
 		} else if (newValue < 0) {
 			//stopTimer();
-			console.log(books.value);
-			console.log(diction.filter((item) => item.name === books.value)[0].data);
-			index.value = random(library);
-
+			console.log(words.value);
+			console.log(diction.value.filter((item) => item.name === words.value)[0].data);
+			index.value = random(library.value);
 			currentTime.value = inCount.value;
 		}
 	}
@@ -211,12 +197,10 @@ watch(
 		}
 	}
 );
-// watch(
-// 	() => books.value,
-// 	(newValue) => {
-// 		diction = localStorage.biblioteca[newValue];
-// 	}
-// );
+watch(
+	() => words.value,
+	(newValue) => {}
+);
 //________________________E N D___W A T C H_____________________________
 
 const btnRename = (e) => {
@@ -233,32 +217,35 @@ const btnRename = (e) => {
 	}
 	if (status.btn === "ENTER" && status.sel === "input") {
 		console.log("INPUT");
-		diction.push({ en: diction[index.value].en, ru: diction[index.value].ru, ru_result: 0, en_result: 0 });
+		diction.value.push({ en: diction.value[index.value].en, ru: diction[index.value].ru, ru_result: 0, en_result: 0 });
 	}
 	if (status.btn === "ENTER" && status.sel === "rename") {
 		console.log("RENAME");
-		diction.push(diction[index]);
+		diction.value.push(diction.value[index]);
 	}
 	if (status.btn === "DELETE") {
 		console.log("DELETE");
-		diction.splice(index.value, 1);
+		diction.value.splice(index.value, 1);
 	}
 };
-const submit = (value) => {
-	console.log(value);
-	timer.value = value;
-	console.log("submit");
-};
-const submit1 = (value) => {
-	console.log(value);
-	status.lang = value;
-	console.log("submit1");
-};
-const submit2 = (value) => {
-	console.log(value);
-	books.value = value;
-	console.log(library.value[index.value]);
-};
+
+// const submit = (value) => {
+// 	console.log(value);
+// 	timer.value = value;
+// 	console.log("submit");
+// };
+
+// const submit1 = (value) => {
+// 	console.log(value);
+// 	status.lang = value;
+// 	console.log("submit1");
+// };
+
+// const submit2 = (value) => {
+// 	stopTimer();
+// 	words.value = value;
+// 	diction.value.filter((item) => item.name === words.value)[0].data;
+// };
 </script>
 
 <style scoped>
@@ -277,7 +264,7 @@ h4 {
 	margin: 20px auto;
 }
 .first {
-	height: 60px;
+	min-height: 90px;
 }
 .second {
 	height: 60px;

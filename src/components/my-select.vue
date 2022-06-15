@@ -27,8 +27,7 @@ const emit = defineEmits(["sub"]);
 watch(
 	() => my_value.value,
 	(newValue) => {
-		console.log(newValue);
-		emit("sub", my_value.value);
+		emit("sub", newValue);
 	}
 );
 // methods: {
