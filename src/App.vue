@@ -24,7 +24,8 @@ body {
 	-webkit-font-smoothing: antialiased;
 	-moz-osx-font-smoothing: grayscale;
 	text-align: center;
-	color: #c4b850;
+	color: #d1be12;
 	margin-top: 60px;
+	line-height: 1.5;
 }
 </style>
