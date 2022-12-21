@@ -1,6 +1,7 @@
 <template>
 	<div class="wrapper">
-		<MySelect class="select" v-model="selectLibrary" :my_options="libraryNames" :my_define="'biblioteca >>>'"></MySelect>
+		<MySelect class="select" v-model="selectLibrary" :my_options="libraryNames" :my_define="'biblioteca >>>'">
+		</MySelect>
 
 		<MySelect class="select" v-model="selectLang" :my_options="['ru', 'en']"></MySelect>
 
@@ -9,13 +10,19 @@
 		<div class="lang">
 			<div class="inputRu divInput" v-show="selectOption !== 'Start' || selectLang === 'ru'">
 				<input class="input" type="text" placeholder="ru" v-model="word[randomIndex].ru" />
-				<input class="input" type="text" placeholder="ru_understanding" v-model="word[randomIndex].ru_understanding" />
-				<h1 v-show="leftTime < 10" :style="`color: rgba(255, 179, 65, ${1 - leftTime / 10})`">{{ word[randomIndex].en }}</h1>
+				<input class="input" type="text" placeholder="ru_understanding"
+					v-model="word[randomIndex].ru_understanding" />
+				<h1 v-show="leftTime < 10" :style="`color: rgba(255, 179, 65, ${1 - leftTime / 10})`">{{
+						word[randomIndex].en
+				}}</h1>
 			</div>
 			<div class="inputEn divInput" v-show="selectOption !== 'Start' || selectLang === 'en'">
 				<input class="input" type="text" placeholder="en" v-model="word[randomIndex].en" />
-				<input class="input" type="text" placeholder="en_understanding" v-model="word[randomIndex].en_understanding" />
-				<h1 v-show="leftTime < 10" :style="`color: rgba(255, 179, 65, ${1 - leftTime / 10})`">{{ word[randomIndex].ru }}</h1>
+				<input class="input" type="text" placeholder="en_understanding"
+					v-model="word[randomIndex].en_understanding" />
+				<h1 v-show="leftTime < 10" :style="`color: rgba(255, 179, 65, ${1 - leftTime / 10})`">{{
+						word[randomIndex].ru
+				}}</h1>
 			</div>
 
 			<div class="text divInput" v-show="isText">
@@ -35,29 +42,36 @@
 			<p>{{ leftTime }}</p>
 		</div>
 
-		<button
-			class="btn btnNum"
-			type="button"
-			@click="
-				timer++;
-				leftTime++;
-			"
-		>
+		<button class="btn btnNum" type="button" @click="
+	timer++;
+leftTime++;
+		">
 			+
 		</button>
 
 		<span> {{ timer }} </span>
 
-		<button
-			class="btn btnNum"
-			type="button"
-			@click="
-				timer--;
-				leftTime--;
-			"
-		>
+		<button class="btn btnNum" type="button" @click="
+	timer--;
+leftTime--;
+		">
 			−
 		</button>
+		<div class="myCssexperiments">
+			<div class="kvadrat"></div>
+			<div class="krug"></div>
+			<div class="treugolnbr"></div>
+			<div class="trapeciya"></div>
+			<div class="wrapperStar">
+				<div class="zvezda1"></div>
+				<div class="zvezda2"></div>
+				<div class="zvezda3"></div>
+				<div class="zvezda4"></div>
+				<div class="zvezda5"></div>
+			</div>
+			<div class="shestygran"></div>
+		</div>
+
 	</div>
 </template>
 
@@ -80,15 +94,16 @@ const timeout = ref({});
 const isText = ref(true);
 const isBtn = ref(true);
 const indexLibrary = ref(0);
-
-const dictionary = ref(rootDictionary);
 if (!window.localStorage.dictionary) {
-	localStorage.setItem("dictionary", JSON.stringify(rootDictionary));
+	window.localStorage.setItem("dictionary", JSON.stringify(rootDictionary));
 }
 
-if (window.localStorage.dictionary) {
-	dictionary.value = JSON.parse(window.localStorage.getItem("dictionary"));
-}
+const dictionary = ref(JSON.parse(window.localStorage.dictionary));
+
+
+// if (window.localStorage.dictionary) {
+// 	dictionary.value = JSON.parse(window.localStorage.getItem("dictionary"));
+// }
 const word = computed(() => {
 	return toSortDictionary(dictionary.value[indexLibrary.value].data);
 });
@@ -140,14 +155,14 @@ const stopTimer = () => {
 watch(
 	() => response.value,
 	(newValue, oldValue) => {
-		if (selectLang.value === "ru" && response.value === word.value[randomIndex.value].en) {
+		if (selectLang.value === "ru" && response.value.trim() === word.value[randomIndex.value].en) {
 			word.value[randomIndex.value].ru_understanding++;
 			console.log("ru");
 			response.value = "";
 			leftTime.value = timer.value;
 			randomIndex.value = random(dictionary.value[indexLibrary.value].data);
 		}
-		if (selectLang.value === "en" && response.value === word.value[randomIndex.value].ru) {
+		if (selectLang.value === "en" && response.value.trim() === word.value[randomIndex.value].ru) {
 			word.value[randomIndex.value].en_understanding++;
 			console.log("en");
 			response.value = "";
@@ -172,37 +187,44 @@ watch(
 	}
 );
 
-onDeactivated(() => {
+
+onBeforeUnmount(() => {
 	localStorage.removeItem("dictionary");
 	localStorage.setItem("dictionary", JSON.stringify(dictionary.value));
-	console.log("onBeforeUnmount", this);
+	console.log("onBeforeUnmount");
+	alert("сработал onBefoUnmount")
 });
 </script>
 
 <style lang="scss" scoped>
-.wrapper {
-}
+.wrapper {}
+
 .select {
 	border-radius: 10px;
 	padding: 1px 10px;
 	margin: 0 3px;
 }
+
 .lang {
 	font: 1.5em sans-serif;
 }
+
 .inputRu {
 	min-height: 150px;
 }
+
 .inputEn {
 	min-height: 150px;
 }
-.text {
-}
+
+.text {}
+
 .divLeftTime {
 	font-weight: bold;
 	font-size: 30px;
 	color: rgb(255, 2, 255);
 }
+
 .btn {
 	padding: 5px 25px;
 	border-radius: 10px;
@@ -210,12 +232,14 @@ onDeactivated(() => {
 	font-weight: bold;
 	font-size: 16px;
 }
+
 .btnNum {
 	font-size: 26px;
 	width: 50px;
 	height: 50px;
 	border-radius: 50%;
 }
+
 .input {
 	border: 2px rgb(99, 20, 63) solid;
 	box-shadow: 3px 3px 2px 1px;
@@ -224,4 +248,128 @@ onDeactivated(() => {
 	font-weight: bold;
 	font-size: 16px;
 }
+
+.myCssexperiments {
+	// display: flex;
+	// gap: 10px;
+	// justify-content: center;
+
+}
+
+.kvadrat {
+	height: 100px;
+	width: 100px;
+	border: red 1px solid;
+}
+
+.krug {
+	height: 100px;
+	width: 100px;
+	border: aqua 1px solid;
+	border-radius: 50%;
+	background-color: aqua;
+
+}
+
+.treugolnbr {
+	height: 30px;
+	width: 120px;
+	border-radius: 50%;
+
+	border-left: 50px red solid;
+	border-right: 50px red solid;
+	border-top: 50px green solid;
+	border-bottom: 50px solid green;
+
+
+
+}
+
+.trapeciya {
+	height: 100px;
+	width: 200px;
+	border-radius: 66%;
+	border: red 1px solid;
+
+}
+
+.wrapperStar {
+	width: 200px;
+	height: 200px;
+	display: flex;
+	border: 1px green solid;
+	justify-content: center;
+	align-items: center;
+	gap: 30px;
+
+
+
+}
+
+.zvezda1 {
+	height: 0px;
+	width: 0px;
+	border-left: 10px transparent solid;
+	border-right: 10px transparent solid;
+	border-top: 60px rgb(17, 195, 226) solid;
+	border-bottom: 10px rgb(245, 14, 226) solid;
+	position: absolute;
+	left: 100px;
+	bottom: -330px;
+
+
+
+}
+
+.zvezda2 {
+	height: 0px;
+	width: 0px;
+	border-left: 10px transparent solid;
+	border-right: 10px transparent solid;
+	border-top: 60px rgb(219, 190, 21) solid;
+	rotate: 72deg;
+	position: absolute;
+	left: 58px;
+	bottom: -299px;
+
+}
+
+.zvezda3 {
+	height: 0px;
+	width: 0px;
+	border-left: 10px transparent solid;
+	border-right: 10px transparent solid;
+	border-top: 60px rgb(0, 255, 42) solid;
+	rotate: 144deg;
+	position: absolute;
+	left: 75px;
+	bottom: -248px;
+}
+
+.zvezda4 {
+	height: 0px;
+	width: 0px;
+	border-left: 10px transparent solid;
+	border-right: 10px transparent solid;
+	border-top: 60px rgb(25, 0, 255) solid;
+	rotate: 216deg;
+	position: absolute;
+	left: 128px;
+	bottom: -248px;
+}
+
+.zvezda5 {
+	height: 0px;
+	width: 0px;
+	border-left: 10px transparent solid;
+	border-right: 10px transparent solid;
+	border-top: 60px red solid;
+	rotate: 288deg;
+	position: absolute;
+	left: 144px;
+	bottom: -299px;
+
+}
+
+.shestygran {}
 </style>

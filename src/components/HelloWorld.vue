@@ -37,27 +37,22 @@
 		<p>{{ currentTime }}</p>
 	</div>
 
-	<button
-		type="button"
-		@click="
-			inCount++;
-			currentTime++;
-		"
-	>
+	<button type="button" @click="
+	inCount++;
+currentTime++;
+	">
 		+
 	</button>
 
 	<span>{{ inCount }}</span>
 
-	<button
-		type="button"
-		@click="
-			inCount--;
-			currentTime--;
-		"
-	>
+	<button type="button" @click="
+	inCount--;
+currentTime--;
+	">
 		-
 	</button>
+
 </template>
 
 <script setup>
@@ -111,9 +106,11 @@ const word = computed(() => {
 });
 
 const library = computed(() => {
-	//console.log("computed-library");
-	return diction.value.filter((item) => item.name === words.value)[0].data;
+	console.log(diction.value);
+	return diction.value.filter((item) => item.libraryName === words.value)[0].data;
 });
+
+
 
 //_____________________endComputed_____________________________
 
@@ -199,7 +196,7 @@ watch(
 );
 watch(
 	() => words.value,
-	(newValue) => {}
+	(newValue) => { }
 );
 //________________________E N D___W A T C H_____________________________
 
@@ -252,20 +249,24 @@ const btnRename = (e) => {
 h4 {
 	display: none;
 }
+
 .lang {
 	display: flex;
 	flex-direction: column;
 	gap: 20px;
 	padding-bottom: 50px;
 }
+
 .btn {
 	/* border: 1px solid red; */
 	width: 20%;
 	margin: 20px auto;
 }
+
 .first {
 	min-height: 90px;
 }
+
 .second {
 	height: 60px;
 }

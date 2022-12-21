@@ -1,3 +1,10 @@
 {
-	"recommendations": ["johnsoncodehk.volar", "space-ocean-kit-refined.space-ocean-kit-refined"]
+  "recommendations": [
+    "johnsoncodehk.volar",
+    "space-ocean-kit-refined.space-ocean-kit-refined",
+    "awran5.monokai-neo",
+    "steoates.autoimport",
+    "robbowen.synthwave-vscode",
+    "misterj.vue-volar-extention-pack"
+  ]
 }
